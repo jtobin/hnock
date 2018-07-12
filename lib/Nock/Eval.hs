@@ -8,11 +8,12 @@ import Nock.Language
 nock :: Expr -> Noun
 nock expr = case expr of
   Noun noun -> noun
-  Wut  e -> wut (nock e)
-  Lus  e -> lus (nock e)
-  Tis  e -> tis (nock e)
-  Fas  e -> fas (nock e)
-  Tar  e -> tar (nock e)
+  Pair l r  -> Cell (nock l) (nock r)
+  Wut  e    -> wut (nock e)
+  Lus  e    -> lus (nock e)
+  Tis  e    -> tis (nock e)
+  Fas  e    -> fas (nock e)
+  Tar  e    -> tar (nock e)
 
 wut :: Noun -> Noun
 wut noun = case noun of
