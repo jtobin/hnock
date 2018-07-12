@@ -89,14 +89,10 @@ fas noun = case noun of
 tar :: Noun -> Noun
 tar noun = case noun of
   Atom {}  -> error "tar: bad noun"
-  -- [a m]
   Cell a m -> case m of
     Atom {} -> error "tar: bad noun"
-    -- [a [n d]]
     Cell n d -> case n of
-      -- [a [b c] d]
       Cell b c -> Cell (tar (Cell a (Cell b c))) (tar (Cell a d))
-      -- [a z d]
       Atom z   -> case z of
 
         0 -> fas (Cell d a)
@@ -105,8 +101,8 @@ tar noun = case noun of
 
         2 -> case d of
           Atom {}  -> error "tar: bad noun"
-          -- [a 2 e f]
-          Cell e f -> tar (Cell (tar (Cell a e)) (tar (Cell a f)))
+          Cell e f ->
+            tar (Cell (tar (Cell a e)) (tar (Cell a f)))
 
         3 -> wut (tar (Cell a d))
 
@@ -116,37 +112,30 @@ tar noun = case noun of
 
         6 -> case d of
           Atom {}  -> error "tar: bad noun"
-          -- [a 6 g h]
           Cell g h -> case h of
             Atom {}  -> error "tar: bad noun"
-            -- [a 6 g i j]
             Cell i j -> tar (tar6 a g i j)
 
         7 -> case d of
           Atom {}  -> error "tar: bad noun"
-          -- [a 7 g h]
-          Cell g h -> tar (Cell a (Cell (Atom 2) (Cell g (Cell (Atom 1) h))))
+          Cell g h ->
+            tar (Cell a (Cell (Atom 2) (Cell g (Cell (Atom 1) h))))
 
         8 -> case d of
           Atom {}  -> error "tar: bad noun"
-          -- [a 8 g h]
           Cell g h -> tar (tar8 a g h)
 
         9 -> case d of
           Atom {}  -> error "tar: bad noun"
-          -- [a 9 g h]
           Cell g h -> tar (tar9 a g h)
 
         10 -> case d of
           Atom {} -> error "tar: bad noun"
-          -- [a 10 g h]
           Cell g h -> case g of
-            -- [a 10 [i j] h]
             Cell i j -> tar (tar10 a i j h)
             _        -> tar (Cell a h)
 
         _ -> error "tar: bad noun"
-
 
 tar6 :: Noun -> Noun -> Noun -> Noun -> Noun
 tar6 a b c d =
@@ -202,6 +191,7 @@ test0 =
 
 -- *[[[4 5] [6 14 15]] [0 7]]
 -- should be [14 15]
+-- FIXME blows the stack at present
 test1 :: Expr
 test1 =
   Tar
