@@ -88,27 +88,27 @@ tar noun = case noun of
     in  tistar (Cell a b)
 
   Cell a (Cell (Atom 6) (Cell b (Cell c d))) ->
-    tar (tar6 a b c d)
+    tar6 a b c d
 
   Cell a (Cell (Atom 7) (Cell b c)) ->
     tar (Cell a (Cell (Atom 2) (Cell b (Cell (Atom 1) c))))
 
   Cell a (Cell (Atom 8) (Cell b c)) ->
-    tar (tar8 a b c)
+    tar8 a b c
 
   Cell a (Cell (Atom 9) (Cell b c)) ->
-    tar (tar9 a b c)
+    tar9 a b c
 
   Cell a (Cell (Atom 10) (Cell (Cell b c) d)) ->
-    tar (tar10 a b c d)
+    tar10 a b c d
 
   Cell a (Cell (Atom 10) (Cell _ c)) ->
     tar (Cell a c)
 
   _ -> Left (Error noun)
 
-tar6 :: Noun -> Noun -> Noun -> Noun -> Noun
-tar6 a b c d =
+tar6 :: Noun -> Noun -> Noun -> Noun -> Possibly Noun
+tar6 a b c d = tar $
   Cell a
     (Cell (Atom 2)
     (Cell (Cell (Atom 0) (Atom 1))
@@ -121,8 +121,8 @@ tar6 a b c d =
     (Cell (Atom 4)
     (Cell (Atom 4) b))))))))))
 
-tar8 :: Noun -> Noun -> Noun -> Noun
-tar8 a b c =
+tar8 :: Noun -> Noun -> Noun -> Possibly Noun
+tar8 a b c = tar $
   Cell a
     (Cell (Atom 7)
     (Cell
@@ -130,8 +130,8 @@ tar8 a b c =
     (Cell (Cell (Atom 0) (Atom 1)) b))
     (Cell (Cell (Atom 0) (Atom 1)) c)))
 
-tar9 :: Noun -> Noun -> Noun -> Noun
-tar9 a b c =
+tar9 :: Noun -> Noun -> Noun -> Possibly Noun
+tar9 a b c = tar $
   Cell a
     (Cell (Atom 7)
     (Cell c
@@ -139,8 +139,8 @@ tar9 a b c =
     (Cell (Cell (Atom 0) (Atom 1))
     (Cell (Atom 0) b)))))
 
-tar10 :: Noun -> Noun -> Noun -> Noun -> Noun
-tar10 a _ c d =
+tar10 :: Noun -> Noun -> Noun -> Noun -> Possibly Noun
+tar10 a _ c d = tar $
   Cell a
     (Cell (Atom 8)
     (Cell c

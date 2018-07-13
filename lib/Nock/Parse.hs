@@ -2,13 +2,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Nock.Parse (
-    parse
+    P.runParser
+
+  , parse
+  , expr
   ) where
 
 import Nock.Language
-import qualified Text.Parsec as P
-import qualified Data.Text as T
 import Control.Applicative ((<|>))
+import qualified Data.Text as T
+import qualified Text.Parsec as P
 
 parse :: T.Text -> Either P.ParseError Expr
 parse = P.runParser expr [] "input"

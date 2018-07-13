@@ -18,7 +18,7 @@ main = do
 
   case parse input of
     Left parseErr -> T.putStrLn (T.pack (show parseErr))
-    Right expr -> case eval expr of
+    Right e -> case eval e of
       Left err   -> T.putStrLn (T.pack (show err))
       Right noun -> T.putStrLn (T.pack (show noun))
 
