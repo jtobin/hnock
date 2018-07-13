@@ -1,4 +1,3 @@
-
 module Nock.Language (
     Noun(..)
   , Expr(..)
@@ -16,21 +15,19 @@ instance Show Noun where
 
 data Expr =
     Noun !Noun
-  | Pair Expr Expr
-  | Wut Expr
-  | Lus Expr
-  | Tis Expr
-  | Fas Expr
-  | Tar Expr
+  | Wut !Noun
+  | Lus !Noun
+  | Tis !Noun
+  | Fas !Noun
+  | Tar !Noun
   deriving Eq
 
 instance Show Expr where
   show op = case op of
-    Noun n   -> show n
-    Pair l r -> mconcat ["[", show l, " ", show r, "]"]
-    Wut n    -> mconcat ["?", show n]
-    Lus n    -> mconcat ["+", show n]
-    Tis n    -> mconcat ["=", show n]
-    Fas n    -> mconcat ["/", show n]
-    Tar n    -> mconcat ["*", show n]
+    Noun n -> show n
+    Wut n  -> mconcat ["?", show n]
+    Lus n  -> mconcat ["+", show n]
+    Tis n  -> mconcat ["=", show n]
+    Fas n  -> mconcat ["/", show n]
+    Tar n  -> mconcat ["*", show n]
 

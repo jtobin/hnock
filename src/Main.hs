@@ -16,9 +16,9 @@ main = do
     T.putStrLn "USAGE: echo EXPR | ./hnock"
     exitSuccess
 
-  let parsed = parse input
-
-  case parsed of
-    Left err   -> T.putStrLn (T.pack (show err))
-    Right expr -> T.putStrLn (T.pack (show (nock expr)))
+  case parse input of
+    Left parseErr -> T.putStrLn (T.pack (show parseErr))
+    Right expr -> case eval expr of
+      Left err   -> T.putStrLn (T.pack (show err))
+      Right noun -> T.putStrLn (T.pack (show noun))
 

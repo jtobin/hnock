@@ -1,153 +1,150 @@
-
 module Nock.Eval (
     nock
+  , eval
   ) where
 
+import Control.Monad ((<=<))
 import Nock.Language
 
-nock :: Expr -> Noun
-nock expr = case expr of
-  Noun noun -> noun
-  Pair l r  -> Cell (nock l) (nock r)
-  Wut  e    -> wut (nock e)
-  Lus  e    -> lus (nock e)
-  Tis  e    -> tis (nock e)
-  Fas  e    -> fas (nock e)
-  Tar  e    -> tar (nock e)
+data Error = Error Noun
+  deriving Show
 
-wut :: Noun -> Noun
-wut noun = case noun of
+type Possibly = Either Error
+
+nock :: Noun -> Possibly Noun
+nock = tar
+
+eval :: Expr -> Possibly Noun
+eval expr = case expr of
+  Noun noun -> return noun
+  Wut  e    -> wut e
+  Lus  e    -> lus e
+  Tis  e    -> tis e
+  Fas  e    -> fas e
+  Tar  e    -> tar e
+
+wut :: Noun -> Possibly Noun
+wut noun = return $ case noun of
   Cell {} -> Atom 0
   Atom {} -> Atom 1
 
-lus :: Noun -> Noun
+lus :: Noun -> Possibly Noun
 lus noun = case noun of
-  Cell {} -> error "lus: bad noun"
-  Atom m  -> Atom (1 + m)
+  Cell {} -> Left (Error noun)
+  Atom m  -> return (Atom (1 + m))
 
-tis :: Noun -> Noun
+tis :: Noun -> Possibly Noun
 tis noun = case noun of
-  Atom {}  -> error "tis: bad noun"
-  Cell m n ->
+  Atom {}  -> Left (Error noun)
+  Cell m n -> return $
     if   m == n
     then Atom 0
     else Atom 1
 
-fas :: Noun -> Noun
+fas :: Noun -> Possibly Noun
 fas noun = case noun of
-  Atom {}  -> error "fas: bad noun"
-  Cell m n -> case m of
-    Cell {} -> error "fas: bad noun"
-    Atom a  -> case a of
+  Cell (Atom 1) a          -> return a
+  Cell (Atom 2) (Cell a _) -> return a
+  Cell (Atom 3) (Cell _ b) -> return b
+  Cell (Atom a) b          ->
+    if   even a
+    then do
+      inner <- fas (Cell (Atom (a `div` 2)) b)
+      fas (Cell (Atom 2) inner)
+    else do
+      inner <- fas (Cell (Atom ((a - 1) `div` 2)) b)
+      fas (Cell (Atom 3) inner)
 
-      1 -> n
+  _ -> Left (Error noun)
 
-      2 -> case n of
-        Atom {}  -> error "fas: bad noun"
-        Cell o _ -> o
-
-      3 -> case n of
-        Atom {}  -> error "fas: bad noun"
-        Cell _ o -> o
-
-      _ ->
-        if    even a
-        then
-          let inner = Cell (Atom (a `div` 2)) n
-          in  fas (Cell (Atom 2) (fas inner))
-        else
-          let inner = Cell (Atom ((a - 1) `div` 2)) n
-          in  fas (Cell (Atom 3) (fas inner))
-
-tar :: Noun -> Noun
+tar :: Noun -> Possibly Noun
 tar noun = case noun of
-  Atom {}  -> error "tar: bad noun"
-  Cell a m -> case m of
-    Atom {} -> error "tar: bad noun"
-    Cell n d -> case n of
-      Cell b c -> Cell (tar (Cell a (Cell b c))) (tar (Cell a d))
-      Atom z   -> case z of
+  Cell a (Cell (Cell b c) d) -> do
+    inner0 <- tar (Cell a (Cell b c))
+    inner1 <- tar (Cell a d)
+    return (Cell inner0 inner1)
 
-        0 -> fas (Cell d a)
+  Cell a (Cell (Atom 0) b) ->
+    fas (Cell b a)
 
-        1 -> d
+  Cell _ (Cell (Atom 1) b) ->
+    return b
 
-        2 -> case d of
-          Atom {}  -> error "tar: bad noun"
-          Cell e f ->
-            tar (Cell (tar (Cell a e)) (tar (Cell a f)))
+  Cell a (Cell (Atom 2) (Cell b c)) -> do
+    inner0 <- tar (Cell a b)
+    inner1 <- tar (Cell a c)
+    tar (Cell inner0 inner1)
 
-        3 -> wut (tar (Cell a d))
+  Cell a (Cell (Atom 3) b) ->
+    let wuttar = wut <=< tar
+    in  wuttar (Cell a b)
 
-        4 -> lus (tar (Cell a d))
+  Cell a (Cell (Atom 4) b) ->
+    let lustar = lus <=< tar
+    in  lustar (Cell a b)
 
-        5 -> tis (tar (Cell a d))
+  Cell a (Cell (Atom 5) b) ->
+    let tistar = tis <=< tar
+    in  tistar (Cell a b)
 
-        6 -> case d of
-          Atom {}  -> error "tar: bad noun"
-          Cell g h -> case h of
-            Atom {}  -> error "tar: bad noun"
-            Cell i j -> tar (tar6 a g i j)
+  Cell a (Cell (Atom 6) (Cell b (Cell c d))) ->
+    tar (tar6 a b c d)
 
-        7 -> case d of
-          Atom {}  -> error "tar: bad noun"
-          Cell g h ->
-            tar (Cell a (Cell (Atom 2) (Cell g (Cell (Atom 1) h))))
+  Cell a (Cell (Atom 7) (Cell b c)) ->
+    tar (Cell a (Cell (Atom 2) (Cell b (Cell (Atom 1) c))))
 
-        8 -> case d of
-          Atom {}  -> error "tar: bad noun"
-          Cell g h -> tar (tar8 a g h)
+  Cell a (Cell (Atom 8) (Cell b c)) ->
+    tar (tar8 a b c)
 
-        9 -> case d of
-          Atom {}  -> error "tar: bad noun"
-          Cell g h -> tar (tar9 a g h)
+  Cell a (Cell (Atom 9) (Cell b c)) ->
+    tar (tar9 a b c)
 
-        10 -> case d of
-          Atom {} -> error "tar: bad noun"
-          Cell g h -> case g of
-            Cell i j -> tar (tar10 a i j h)
-            _        -> tar (Cell a h)
+  Cell a (Cell (Atom 10) (Cell (Cell b c) d)) ->
+    tar (tar10 a b c d)
 
-        _ -> error "tar: bad noun"
+  Cell a (Cell (Atom 10) (Cell _ c)) ->
+    tar (Cell a c)
+
+  _ -> Left (Error noun)
 
 tar6 :: Noun -> Noun -> Noun -> Noun -> Noun
 tar6 a b c d =
   Cell a
     (Cell (Atom 2)
-      (Cell (Cell (Atom 0) (Atom 1))
-        (Cell (Atom 2)
-          (Cell (Cell (Atom 1) (Cell c d))
-            (Cell (Cell (Atom 1) (Atom 0))
-              (Cell (Atom 2)
-                (Cell (Cell (Atom 1) (Cell (Atom 2) (Atom 3)))
-                  (Cell (Cell (Atom 1) (Atom 0))
-                    (Cell (Atom 4)
-                      (Cell (Atom 4) b))))))))))
+    (Cell (Cell (Atom 0) (Atom 1))
+    (Cell (Atom 2)
+    (Cell (Cell (Atom 1) (Cell c d))
+    (Cell (Cell (Atom 1) (Atom 0))
+    (Cell (Atom 2)
+    (Cell (Cell (Atom 1) (Cell (Atom 2) (Atom 3)))
+    (Cell (Cell (Atom 1) (Atom 0))
+    (Cell (Atom 4)
+    (Cell (Atom 4) b))))))))))
 
 tar8 :: Noun -> Noun -> Noun -> Noun
 tar8 a b c =
   Cell a
     (Cell (Atom 7)
-      (Cell
-        (Cell (Atom 7)
-            (Cell (Cell (Atom 0) (Atom 1)) b))
-        (Cell (Cell (Atom 0) (Atom 1)) c)))
+    (Cell
+    (Cell (Atom 7)
+    (Cell (Cell (Atom 0) (Atom 1)) b))
+    (Cell (Cell (Atom 0) (Atom 1)) c)))
 
 tar9 :: Noun -> Noun -> Noun -> Noun
 tar9 a b c =
   Cell a
     (Cell (Atom 7)
-      (Cell c
-        (Cell (Atom 2)
-          (Cell (Cell (Atom 0) (Atom 1))
-            (Cell (Atom 0) b)))))
+    (Cell c
+    (Cell (Atom 2)
+    (Cell (Cell (Atom 0) (Atom 1))
+    (Cell (Atom 0) b)))))
 
 tar10 :: Noun -> Noun -> Noun -> Noun -> Noun
 tar10 a _ c d =
   Cell a
     (Cell (Atom 8)
-      (Cell c
-        (Cell (Atom 7)
-          (Cell (Cell (Atom 0) (Atom 3))
-            d))))
+    (Cell c
+    (Cell (Atom 7)
+    (Cell (Cell (Atom 0) (Atom 3))
+    d))))
 
