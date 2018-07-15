@@ -3,7 +3,6 @@ module Nock.Eval (
   , eval
   ) where
 
-import Control.Monad ((<=<))
 import Nock.Language
 
 data Error = Error Noun
@@ -75,17 +74,17 @@ tar noun = case noun of
     inner1 <- tar (Cell a c)
     tar (Cell inner0 inner1)
 
-  Cell a (Cell (Atom 3) b) ->
-    let wuttar = wut <=< tar
-    in  wuttar (Cell a b)
+  Cell a (Cell (Atom 3) b) -> do
+    tard <- tar (Cell a b)
+    wut tard
 
-  Cell a (Cell (Atom 4) b) ->
-    let lustar = lus <=< tar
-    in  lustar (Cell a b)
+  Cell a (Cell (Atom 4) b) -> do
+    tard <- tar (Cell a b)
+    lus tard
 
-  Cell a (Cell (Atom 5) b) ->
-    let tistar = tis <=< tar
-    in  tistar (Cell a b)
+  Cell a (Cell (Atom 5) b) -> do
+    tard <- tar (Cell a b)
+    tis tard
 
   Cell a (Cell (Atom 6) (Cell b (Cell c d))) ->
     tar6 a b c d
