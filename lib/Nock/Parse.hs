@@ -23,12 +23,13 @@ expr =
 
 operator :: Monad m => P.ParsecT T.Text u m Expr
 operator = do
-  op <- P.oneOf "?+=/*"
+  op <- P.oneOf "?+=/#*"
   case op of
     '?' -> fmap Wut noun
     '+' -> fmap Lus noun
     '=' -> fmap Tis noun
-    '/' -> fmap Fas noun
+    '/' -> fmap Net noun
+    '#' -> fmap Hax noun
     '*' -> fmap Tar noun
     _   -> fail "op: bad token"
 
@@ -44,13 +45,13 @@ atom = do
     (h:t) -> case h of
       '0' -> case t of
         [] -> return (Atom 0)
-        _  -> fail "atom: bad parse"
+        _  -> fail "atom: bad input"
 
       _   ->
         let nat = read digits
         in  return (Atom nat)
 
-    [] -> fail "atom: bad parse"
+    [] -> fail "atom: bad input"
 
 cell :: Monad m => P.ParsecT T.Text u m Noun
 cell = do
@@ -67,8 +68,8 @@ cell = do
 toCell :: [Noun] -> Noun
 toCell = loop where
   loop list = case list of
-    []     -> error "cell: bad parse"
-    [_]    -> error "cell: bad parse"
+    []     -> error "cell: bad input"
+    [_]    -> error "cell: bad input"
     [s, f] -> Cell s f
     (h:t)  -> Cell h (loop t)
 

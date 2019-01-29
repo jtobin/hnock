@@ -6,7 +6,7 @@ import Nock
 -- should be [6 [14 15]]
 expr0 :: Expr
 expr0 =
-  Fas
+  Net
     (Cell (Atom 3)
       (Cell (Cell (Atom 4) (Atom 5))
         (Cell (Atom 6) (Cell (Atom 14) (Atom 15)))))
@@ -66,7 +66,7 @@ noun4 = Atom 20
 -- should be [14 15]
 expr5 :: Expr
 expr5 =
-  Fas
+  Net
     (Cell (Atom 7)
       (Cell (Cell (Atom 4) (Atom 5))
         (Cell (Atom 6) (Cell (Atom 14) (Atom 15)))))
@@ -89,6 +89,18 @@ expr6 =
 noun6 :: Noun
 noun6 = Cell (Atom 153) (Atom 218)
 
+-- #[4 11 [[22 33] 44]]
+-- should be [[11 33] 44]
+expr7 :: Expr
+expr7 =
+  Hax
+    (Cell (Atom 4)
+      (Cell (Atom 11)
+        (Cell (Cell (Atom 22) (Atom 33)) (Atom 44))))
+
+noun7 :: Noun
+noun7 = Cell (Cell (Atom 11) (Atom 33)) (Atom 44)
+
 main :: IO ()
 main = do
   print (fmap (== noun0) (eval expr0))
@@ -98,4 +110,5 @@ main = do
   print (fmap (== noun4) (eval expr4))
   print (fmap (== noun5) (eval expr5))
   print (fmap (== noun6) (eval expr6))
+  print (fmap (== noun7) (eval expr7))
 

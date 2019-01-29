@@ -19,7 +19,8 @@ eval expr = case expr of
   Wut  e    -> wut e
   Lus  e    -> lus e
   Tis  e    -> tis e
-  Fas  e    -> fas e
+  Net  e    -> net e
+  Hax  e    -> hax e
   Tar  e    -> tar e
 
 wut :: Noun -> Possibly Noun
@@ -40,20 +41,35 @@ tis noun = case noun of
     then Atom 0
     else Atom 1
 
-fas :: Noun -> Possibly Noun
-fas noun = case noun of
+net :: Noun -> Possibly Noun
+net noun = case noun of
   Cell (Atom 1) a          -> return a
   Cell (Atom 2) (Cell a _) -> return a
   Cell (Atom 3) (Cell _ b) -> return b
   Cell (Atom a) b          ->
     if   even a
     then do
-      inner <- fas (Cell (Atom (a `div` 2)) b)
-      fas (Cell (Atom 2) inner)
+      inner <- net (Cell (Atom (a `div` 2)) b)
+      net (Cell (Atom 2) inner)
     else do
-      inner <- fas (Cell (Atom ((a - 1) `div` 2)) b)
-      fas (Cell (Atom 3) inner)
+      inner <- net (Cell (Atom ((a - 1) `div` 2)) b)
+      net (Cell (Atom 3) inner)
 
+  _ -> Left (Error noun)
+
+hax :: Noun -> Possibly Noun
+hax noun = case noun of
+  Cell (Atom 1) (Cell a _) -> return a
+  Cell (Atom a) (Cell b c) ->
+    if   even a
+    then do
+      let e = a `div` 2
+      inner <- net (Cell (Atom (e + e + 1)) c)
+      hax (Cell (Atom e) (Cell (Cell b inner) c))
+    else do
+      let o = (a - 1) `div` 2
+      inner <- net (Cell (Atom (o + o)) c)
+      hax (Cell (Atom o) (Cell (Cell inner b) c))
   _ -> Left (Error noun)
 
 tar :: Noun -> Possibly Noun
@@ -64,7 +80,7 @@ tar noun = case noun of
     return (Cell inner0 inner1)
 
   Cell a (Cell (Atom 0) b) ->
-    fas (Cell b a)
+    net (Cell b a)
 
   Cell _ (Cell (Atom 1) b) ->
     return b
@@ -82,68 +98,42 @@ tar noun = case noun of
     tard <- tar (Cell a b)
     lus tard
 
-  Cell a (Cell (Atom 5) b) -> do
+  Cell a (Cell (Atom 5) (Cell b c)) -> do
+    tard0 <- tar (Cell a b)
+    tard1 <- tar (Cell a c)
+    tis (Cell tard0 tard1)
+
+  Cell a (Cell (Atom 6) (Cell b (Cell c d))) -> do
+    tard0 <- tar (Cell a (Cell (Atom 4) (Cell (Atom 4) b)))
+    tard1 <- tar (Cell (Cell (Atom 2) (Atom 3)) (Cell (Atom 0) tard0))
+    tard2 <- tar (Cell (Cell c d) (Cell (Atom 0) tard1))
+    tar (Cell a tard2)
+
+  Cell a (Cell (Atom 7) (Cell b c)) -> do
     tard <- tar (Cell a b)
-    tis tard
+    tar (Cell tard c)
 
-  Cell a (Cell (Atom 6) (Cell b (Cell c d))) ->
-    tar6 a b c d
+  Cell a (Cell (Atom 8) (Cell b c)) -> do
+    tard <- tar (Cell a b)
+    tar (Cell (Cell tard a) c)
 
-  Cell a (Cell (Atom 7) (Cell b c)) ->
-    tar (Cell a (Cell (Atom 2) (Cell b (Cell (Atom 1) c))))
+  Cell a (Cell (Atom 9) (Cell b c)) -> do
+    tard <- tar (Cell a c)
+    tar (Cell tard
+      (Cell (Atom 2) (Cell (Cell (Atom 0) (Atom 1)) (Cell (Atom 0) b))))
 
-  Cell a (Cell (Atom 8) (Cell b c)) ->
-    tar8 a b c
+  Cell a (Cell (Atom 10) (Cell (Cell b c) d)) -> do
+    tard0 <- tar (Cell a c)
+    tard1 <- tar (Cell a d)
+    hax (Cell b (Cell tard0 tard1))
 
-  Cell a (Cell (Atom 9) (Cell b c)) ->
-    tar9 a b c
+  Cell a (Cell (Atom 11) (Cell (Cell _ c) d)) -> do
+    tard0 <- tar (Cell a c)
+    tard1 <- tar (Cell a d)
+    tar (Cell (Cell tard0 tard1) (Cell (Atom 0) (Atom 3)))
 
-  Cell a (Cell (Atom 10) (Cell (Cell b c) d)) ->
-    tar10 a b c d
-
-  Cell a (Cell (Atom 10) (Cell _ c)) ->
+  Cell a (Cell (Atom 11) (Cell _ c)) ->
     tar (Cell a c)
 
   _ -> Left (Error noun)
-
-tar6 :: Noun -> Noun -> Noun -> Noun -> Possibly Noun
-tar6 a b c d = tar $
-  Cell a
-    (Cell (Atom 2)
-    (Cell (Cell (Atom 0) (Atom 1))
-    (Cell (Atom 2)
-    (Cell (Cell (Atom 1) (Cell c d))
-    (Cell (Cell (Atom 1) (Atom 0))
-    (Cell (Atom 2)
-    (Cell (Cell (Atom 1) (Cell (Atom 2) (Atom 3)))
-    (Cell (Cell (Atom 1) (Atom 0))
-    (Cell (Atom 4)
-    (Cell (Atom 4) b))))))))))
-
-tar8 :: Noun -> Noun -> Noun -> Possibly Noun
-tar8 a b c = tar $
-  Cell a
-    (Cell (Atom 7)
-    (Cell
-    (Cell (Atom 7)
-    (Cell (Cell (Atom 0) (Atom 1)) b))
-    (Cell (Cell (Atom 0) (Atom 1)) c)))
-
-tar9 :: Noun -> Noun -> Noun -> Possibly Noun
-tar9 a b c = tar $
-  Cell a
-    (Cell (Atom 7)
-    (Cell c
-    (Cell (Atom 2)
-    (Cell (Cell (Atom 0) (Atom 1))
-    (Cell (Atom 0) b)))))
-
-tar10 :: Noun -> Noun -> Noun -> Noun -> Possibly Noun
-tar10 a _ c d = tar $
-  Cell a
-    (Cell (Atom 8)
-    (Cell c
-    (Cell (Atom 7)
-    (Cell (Cell (Atom 0) (Atom 3))
-    d))))
 

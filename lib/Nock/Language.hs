@@ -18,7 +18,8 @@ data Expr =
   | Wut !Noun
   | Lus !Noun
   | Tis !Noun
-  | Fas !Noun
+  | Net !Noun
+  | Hax !Noun
   | Tar !Noun
   deriving Eq
 
@@ -28,6 +29,7 @@ instance Show Expr where
     Wut n  -> mconcat ["?", show n]
     Lus n  -> mconcat ["+", show n]
     Tis n  -> mconcat ["=", show n]
-    Fas n  -> mconcat ["/", show n]
+    Net n  -> mconcat ["/", show n]
+    Hax n  -> mconcat ["#", show n]
     Tar n  -> mconcat ["*", show n]
 
