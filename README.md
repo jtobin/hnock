@@ -1,10 +1,21 @@
 # hnock
 
-A Nock interpreter.
+A [Nock][nock] interpreter.
+
+## Install
+
+Use a simple
+
+```
+stack install
+```
+
+to build the `hnock` binary and get it moved somewhere on your PATH.  If you
+just want to build the binary, you can use `stack build`.
 
 ## Usage
 
-From bash, simply pipe Nock expressions into the executable `hnock`:
+From bash, simply pipe Nock expressions into the `hnock` executable:
 
 ```
 $ echo '*[[[4 5] [6 14 15]] [0 7]]' | hnock
@@ -20,13 +31,18 @@ and evaluate Nock expressions:
 ```
 
 To evaluate raw nock Nouns, i.e. to compute `nock(a)` for some noun `a`, use
-`enock`:
+the `nock` function:
 
 ```
 *Nock> let expression = hnock "[[[4 5] [6 14 15]] [0 7]]"
 *Nock> expression
 [[[4 5] [6 [14 15]]] [0 7]]
-*Nock> enock expression
+*Nock> nock expression
 [14 15]
 ```
 
+## Testing
+
+Use a simple `stack test` to run the test suite.
+
+[nock]: https://urbit.org/docs/learn/arvo/nock/definition/

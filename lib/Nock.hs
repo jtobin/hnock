@@ -4,27 +4,26 @@ module Nock (
     module L
   , module P
 
-  , enock
+  , nock
   , hnock
 
-  , eval
-  , nock
+  , E.eval
   ) where
 
 import Data.Text as T
-import Nock.Eval as E
+import qualified Nock.Eval as E
 import Nock.Language as L
 import Nock.Parse as P
 
 hnock :: T.Text -> Noun
 hnock input = case runParser expr [] "ghci" input of
   Left perr -> error (show perr)
-  Right ex  -> case eval ex of
+  Right ex  -> case E.eval ex of
     Left err -> error (show err)
     Right e  -> e
 
-enock :: Noun -> Noun
-enock noun = case nock noun of
+nock :: Noun -> Noun
+nock noun = case E.nock noun of
   Left err -> error (show err)
   Right e  -> e
 
