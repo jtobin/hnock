@@ -1,5 +1,5 @@
 name:                hnock
-version:             0.1.0
+version:             0.2.0
 synopsis:            A Nock interpreter.
 description:         A Nock interpreter.
 homepage:            https://github.com/jtobin/hnock
@@ -9,7 +9,7 @@ author:              Jared Tobin
 maintainer:          jared@jtobin.io
 category:            Language
 build-type:          Simple
-extra-source-files:  CHANGELOG.md, README.md
+extra-source-files:  CHANGELOG, README.md
 cabal-version:       >=1.10
 
 library
