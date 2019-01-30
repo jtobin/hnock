@@ -1,0 +1,8 @@
+flags: {}
+resolver: lts-13.4
+packages:
+- .
+extra-deps: []
+compiler: ghc-8.6.3
+system-ghc: false
+install-ghc: true
