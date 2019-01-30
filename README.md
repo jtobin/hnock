@@ -1,5 +1,7 @@
 # hnock
 
+[![Build Status](https://travis-ci.org/jtobin/hnock.svg?branch=master)](https://travis-ci.org/jtobin/hnock)
+
 A [Nock][nock] interpreter.
 
 ## Install
