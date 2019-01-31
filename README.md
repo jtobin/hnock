@@ -48,4 +48,10 @@ the `nock` function:
 
 Use a simple `stack test` to run the test suite.
 
+## See Also
+
+* [A Nock Interpreter][anin]
+
 [nock]: https://urbit.org/docs/learn/arvo/nock/definition/
+[anin]: https://jtobin.io/nock
+
