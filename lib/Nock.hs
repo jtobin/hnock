@@ -16,7 +16,7 @@ import Nock.Language as L
 import Nock.Parse as P
 
 hnock :: T.Text -> Noun
-hnock input = case runParser expr [] "ghci" input of
+hnock input = case P.parse input of
   Left perr -> error (show perr)
   Right ex  -> case E.eval ex of
     Left err -> error (show err)

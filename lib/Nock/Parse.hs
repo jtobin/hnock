@@ -42,14 +42,13 @@ atom :: Monad m => P.ParsecT T.Text u m Noun
 atom = do
   digits <- P.many P.digit
   case digits of
-    (h:t) -> case h of
-      '0' -> case t of
-        [] -> return (Atom 0)
-        _  -> fail "atom: bad input"
+    ('0':t) -> case t of
+      [] -> return (Atom 0)
+      _  -> fail "atom: bad input"
 
-      _   ->
-        let nat = read digits
-        in  return (Atom nat)
+    (_:_) ->
+      let nat = read digits
+      in  return (Atom nat)
 
     [] -> fail "atom: bad input"
 
@@ -57,13 +56,13 @@ cell :: Monad m => P.ParsecT T.Text u m Noun
 cell = do
   P.char '['
   P.skipMany P.space
-  leader <- noun
+  h <- noun
   P.skipMany P.space
-  rest <- P.sepBy noun (P.many1 P.space)
+  t <- P.sepBy noun (P.many1 P.space)
   P.skipMany P.space
   P.char ']'
 
-  return (toCell (leader : rest))
+  return (toCell (h : t))
 
 toCell :: [Noun] -> Noun
 toCell = loop where

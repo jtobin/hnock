@@ -4,8 +4,8 @@ module Nock.Language (
   ) where
 
 data Noun =
-    Atom !Int
-  | Cell !Noun !Noun
+    Atom Integer
+  | Cell Noun Noun
   deriving Eq
 
 instance Show Noun where
