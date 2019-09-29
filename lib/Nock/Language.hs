@@ -3,8 +3,10 @@ module Nock.Language (
   , Expr(..)
   ) where
 
+import Numeric.Natural (Natural)
+
 data Noun =
-    Atom Integer
+    Atom Natural
   | Cell Noun Noun
   deriving Eq
 
