@@ -1,5 +1,5 @@
 name:                hnock
-version:             0.3.0
+version:             0.4.0
 synopsis:            A Nock interpreter.
 description:         A Nock interpreter.
 homepage:            https://github.com/jtobin/hnock
