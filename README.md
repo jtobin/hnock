@@ -1,6 +1,5 @@
 # hnock
 
-[![Build Status](https://travis-ci.org/jtobin/hnock.svg?branch=master)](https://travis-ci.org/jtobin/hnock)
 [![Hackage Version](https://img.shields.io/hackage/v/hnock.svg)](http://hackage.haskell.org/package/hnock)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jtobin/hnock/blob/master/LICENSE)
 
